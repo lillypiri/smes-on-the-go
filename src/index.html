@@ -121,7 +121,12 @@
                     </div>
                     <div id="loader" class="loader mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
                 </div>
-
+                <div class="snack-wrap">
+                    <input type="checkbox" class="snackclose animated" id="close" />
+                    <label class="snacklable animated hidden" for="close"></label>
+                    <div class="snackbar animated">
+                    </div>
+                </div>
                 <div id="zoom-in-msg" class="zoom-in-message hidden"><span class="zoom-in-message-text">Displaying cached marks - zoom to refresh</span></div>
                 <div id="connection-indicator" class="connection-indicator connected">
                     <i id="connect-icon" class="material-icons connection">cloud_done</i>
@@ -141,7 +146,6 @@
         <div id="update-message" class="update-message hidden">
             <div class="update-message-text"><span>SMES On The Go is about to update ...</span><span id="count-down-value" class="update-countdown-value"></span></div>
         </div>
-
         <div id="screen-overlay" class="screen-overlay hidden">
             <div class="mdl-card about-box mdl-shadow--3dp overflow-x-visible">
                 <div class="mdl-card__title mdl-color-text--white about-title">

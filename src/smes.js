@@ -35,6 +35,12 @@ function prepServiceWorker() {
     if (!navigator.serviceWorker) {
         return;
     }
+    // Listen to messages from service workers.
+    navigator.serviceWorker.addEventListener('message', function (event) {
+        if (event.data.indexOf("Error:") > -1) {
+            snackbar.innerHTML = event.data.replace('Error: ', '');
+        }
+    });
 
     navigator.serviceWorker.register('sw.js').then(function (reg) {
         if (!navigator.serviceWorker.controller) {
@@ -105,6 +111,7 @@ window.addEventListener('load', function (e) {
     connectionIndicator = document.getElementById("connection-indicator");
     connectIcon = document.getElementById("connect-icon");
     connectToolTip = document.getElementById("connection-tooltip");
+    snackbar = document.querySelector('.snackbar');
     zoomInMsg = document.getElementById("zoom-in-msg");
     locateButton = document.getElementById("locate");
     locateButton.addEventListener("click", geoLocate, false);
@@ -304,7 +311,7 @@ function showLoader() {
     connectionIndicator.classList.remove("connected");
     connectionIndicator.classList.add("pulsating");
     connectToolTip.textContent = "Connecting to Land Victoria";
-
+    snackbar.innerHTML = "Connecting to Land Victoria";
 
 
 }
@@ -330,7 +337,7 @@ function displayZoomMessage(hasError) {
     var zoomContent;
 
     if (hasError) {
-        zoomContent = "An error occurred while retrieving marks";
+        zoomContent = "An error occurred while retrieving marks<br/>Try zooming in";
     } else if (markStore.useLocalStore && currentZoom >= 14) {
         //zoomInMsg.innerHTML = '<span class="zoom-in-message-text">Displaying cached marks - zoom to refresh</span>';
         zoomContent = "Can't load marks at this zoom<br>Displaying cached marks only<br>Zoom in to load marks";
@@ -346,6 +353,7 @@ function displayZoomMessage(hasError) {
         connectionIndicator.classList.remove("connected");
         connectionIndicator.classList.add("connection-off");
         connectToolTip.innerHTML = zoomContent;
+        snackbar.innerHTML = zoomContent;
 
     } else {
         connectIcon.textContent = 'cloud_done';
@@ -353,6 +361,7 @@ function displayZoomMessage(hasError) {
         connectionIndicator.classList.remove("pulsating");
         connectionIndicator.classList.add("connected");
         connectToolTip.innerHTML = "Marks loaded";
+        snackbar.innerHTML = 'Marks Loaded';
     }
 
 }
@@ -563,11 +572,11 @@ function domReadyHandler(nineFigureNumber, markName) {
 
             markStore.getSurveyMarkSketchResponse(nineFigureNumber).then(function (pdfData) {
                 var blob = markStore.base64toBlob(pdfData.document, 'application/pdf');
-
                 saveAs(blob, downloadName + '(' + nineFigureNumber + ') Sketch.pdf');
                 hideBoxLoader();
             }).catch(function (error) {
                 console.log("PDF retrieval failed");
+                snackbar.innerHTML = 'PDF retrieval failed';
                 hideBoxLoader();
             });
 
@@ -586,6 +595,7 @@ function domReadyHandler(nineFigureNumber, markName) {
                 hideBoxLoader();
             }).catch(function (error) {
                 console.log("PDF retrieval failed");
+                snackbar.innerHTML = 'PDF retrieval failed';
                 hideBoxLoader();
             });
 

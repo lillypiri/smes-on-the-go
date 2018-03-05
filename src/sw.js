@@ -54,7 +54,6 @@ self.addEventListener('activate', function (event) {
 
 self.addEventListener('fetch', function (event) {
     var requestUrl = new URL(event.request.url);
-
     //Check if URL is opaque and should be cached on request
     for (var prefixCounter = 0; prefixCounter < opaqueCacheOnRequest.length; prefixCounter++) {
         if (event.request.url.startsWith(opaqueCacheOnRequest[prefixCounter])) {
@@ -64,12 +63,22 @@ self.addEventListener('fetch', function (event) {
     }
 
     //The default behaviour is to check if it's in the cache, and either serve it from the cache or the network request
-    event.respondWith(checkCacheAndRespond(event.request));
+    event.respondWith(
+        fetch(event.request).catch(error => {
+            return caches.match(event.request).then(function (response) {
+                return response || fetch(event.request);
+            }).catch(err => {
+                postMessage("Error: No network connection")
+            })
+        })
+    );
 });
-
-function checkCacheAndRespond(request) {
-    return caches.match(request).then(function (response) {
-        return response || fetch(request);
+// send the message back to the client/browser
+function postMessage(message) {
+    self.clients.matchAll().then(all => {
+        all.forEach(client => {
+            client.postMessage(message);
+        });
     });
 }
 
